@@ -1,0 +1,109 @@
+---
+title: "RMS titanic analysis"
+author: "chinmay gupta"
+date: "16 January 2018"
+output: html_document
+---
+
+# task 2(a)
+Download and review the Titanic Data.csv data file associated with some Titanic Survivors.
+
+#task 2(b)
+Use the read.csv() function in R to read the data and store it in a dataframe called "titanic".
+
+Use the View() function in R to view the dataframe in R
+```{r}
+titanic.df <- read.csv(paste("Titanic Data.csv"), sep= ",")
+View(titanic.df)
+```
+
+#task 3(a)
+ count the total number of passengers on board the Titanic.
+ 
+```{r}
+nrow(titanic.df)
+```
+
+#task 3(b)
+count the number of passengers who survived the sinking of the Titanic.
+
+```{r}
+nrow(subset(titanic.df,Survived==1))
+```
+
+#task 3(c)
+measure the percentage of passengers who survived the sinking of the Titanic.
+
+```{r}
+(prop.table(table(titanic.df$Survived))*100)[2]
+```
+
+# task 3(d)
+
+count the number of first-class passengers who survived the sinking of the Titanic.
+
+```{r}
+mytable <- xtabs(~Survived+Pclass,data=titanic.df)
+mytable[2]
+```
+
+#task 3(e)
+measure the percentage of first-class passengers who survived the sinking of the Titanic.
+
+```{r}
+(prop.table(mytable)*100)[2]
+```
+
+#task 3(f)
+count the number of females from First-Class who survived the sinking of the Titanic
+```{r}
+female <- xtabs(~Survived+Pclass+Sex,data=titanic.df)
+(ftable(female))[4]
+```
+
+#task 3(g)
+measure the percentage of survivors who were female
+
+```{r}
+mytable <- xtabs(~Survived+Sex,data=titanic.df)
+(prop.table(mytable,1)*100)[2,1]
+
+```
+
+#task 3(h)
+measure the percentage of females on board the Titanic who survived.
+
+```{r}
+(prop.table(mytable,2)*100)[2,1]
+```
+
+
+#task 3(i)
+Run a Pearson's Chi-squared test to test the following hypothesis:
+
+Hypothesis:  The proportion of females onboard who survived the sinking of the Titanic was higher than the proportion of males onboard who survived the sinking of the Titanic.
+
+
+```{r}
+chisq.test(mytable)
+```
+
+
+
+since the P-value < 0.05, we reject the null hypothesis.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ 

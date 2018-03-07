@@ -1,0 +1,30 @@
+---
+title: "titanic t-test"
+author: "chinmay gupta"
+date: "16 January 2018"
+output: html_document
+---
+
+```{r}
+titanic.df <- read.csv(paste("Titanic Data.csv"), sep= ",")
+```
+
+#task 4b
+ create a table showing the average age of the survivors and the average age of the people who died.
+ 
+```{r}
+aggregate(titanic.df$Age,by=list(titanic.df$Survived),mean)
+```
+ 
+
+#task 4(c)
+run a t-test to test the following hypothesis:
+H2: The Titanic survivors were younger than the passengers who died.
+
+null hypothesis : there is no significant difference between the average age of people who survived and those do not.
+
+```{r}
+ t.test(Age~Survived,data=titanic.df)
+```
+
+since the p-value >0.05 we cannot reject null hypothesis. thus there is no significant difference between the average age of people who survived and who didn't.

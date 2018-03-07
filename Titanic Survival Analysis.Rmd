@@ -1,0 +1,610 @@
+---
+title: "Titanic Survival Analysis"
+author: "Sameer Mathur"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+
+Read the Titanic dataset
+========================================================
+
+```{r}
+titanic <- read.csv(paste("Titanic Data.csv", sep=""))
+head(titanic)  # first few rows of the data frame
+```
+
+Random selection of rows using car::some() function
+========================================================
+
+```{r}
+library(car)   
+some(titanic)  # random rows from the data frame
+```
+
+Structure of the data frame
+========================================================
+
+```{r}
+str(titanic)   # datatypes of the columns in data frame
+```
+
+Summary Statistics of the data
+========================================================
+
+```{r, message=FALSE, warning=FALSE}
+attach(titanic)   # attaching the columns of the data frame
+library(psych)
+describe(titanic)   # using describe function
+```
+
+Dimension of the data frame
+========================================================
+
+```{r}
+dim(titanic)   # Total number of rows and columns in data frame
+```
+
+
+QUESTION 1
+========================================================
+Q1a. How many passengers were on board the Titanic? (Hint: The R function `dim()` may be helpful)
+
+Q1b. How many passengers survived the sinking of the Titanic? (Hint: The R functions <span style="color:blue">`subset()`</span> or <span style="color:blue">`which()`</span> may be helpful)
+
+Q1c. Create a one-way contingency table summarizing the Titanic passengers based on how many survived and how many died. (Hint: The R functions <span style="color:blue">`as.factor()`</span> and <span style="color:blue">`table()`</span> may be helpful)
+
+Q1d. What was the percentage of passengers who survived the sinking of the Titanic? (Hint: The R function <span style="color:blue">`prop.table()`</span> may be helpful)
+
+
+Q1a. How many passengers were on board the Titanic?
+========================================================
+
+```{r}
+# total number of passengers
+dim(titanic)[1]
+```
+
+Q1b. How many passengers survived the sinking of the Titanic?
+========================================================
+
+```{r}
+# using subset() function 
+nrow(subset(titanic, Survived == 1))
+
+# using which() function
+length(which(Survived == 1))
+```
+
+Q1c. Create a one-way contingency table of the Titanic passengers based on who survived and who died.
+========================================================
+
+```{r}
+titanic$Survived <- as.factor(titanic$Survived)
+# number of passengers who survived and who died
+survivedTable <- table(titanic$Survived)
+survivedTable
+```
+
+Q1d. What was the percentage of passengers who survived the sinking of the Titanic?
+========================================================
+
+```{r}
+# proportion of survived and died
+prop <- prop.table(survivedTable)
+
+# percentage
+propPer <- prop*100
+propPer
+# percentage of passengers who survived 
+propPer[2]
+```
+
+
+QUESTION 2
+========================================================
+
+Q2a. Create a two-way contingency table characterising the passengers based on survival and based on the passenger class. (Hint: The R functions <span style="color:blue">`xtabs()`</span> and <span style="color:blue">`addmargins()`</span> may be helpful)
+
+Q2b. Visualize your table using a Bar plot.
+
+Q2c. How many first-class passengers survived the sinking of the Titanic?  (Hint: The R functions <span style="color:blue">`subset()`</span> and <span style="color:blue">`nrow()`</span> may be helpful)
+
+Q2d. What was the percentage of first-class passengers who survived the sinking of the Titanic? (Hint: The R functions <span style="color:blue">`xtabs()`</span> and <span style="color:blue">`prop.table()`</span> may be helpful)
+
+
+
+
+Q2a. Create a two-way contingency table characterising the passengers based on survival and based on the passenger class.
+========================================================
+
+```{r}
+mytab <- xtabs(~ Survived + Pclass, data=titanic)
+# sum of the passengers based on the passengers class and survived
+addmargins(mytab)
+```
+
+Q2b. Visualize your table using a Bar-plot.
+========================================================
+
+```{r, eval=FALSE}
+titanic$Pclass <- as.factor(titanic$Pclass)
+# frequency counts of the passengers who survived
+barplot(mytab, 
+        main="Survival by Passenger Class", 
+        xlab="Passenger Class", ylab="Frequency",
+        col=c("grey", "black"),
+        legend=c("Died", "Survived"), beside=TRUE)
+```
+
+Q2b. Visualize your table using a Bar-plot.
+========================================================
+
+```{r, echo=FALSE, out.height="800px",out.width="800px", fig.align='center'}
+titanic$Pclass <- as.factor(titanic$Pclass)
+# frequency counts of the passengers who survived
+barplot(mytab, 
+        main="Survival by Passenger Class", 
+        xlab="Passenger Class", ylab="Frequency",
+        col=c("grey", "black"),
+        legend=c("Died", "Survived"), beside=TRUE)
+```
+
+
+Q2c. How many first-class passengers survived the sinking of the Titanic?
+========================================================
+
+```{r}
+# using subset() function 
+nrow(subset(titanic, Survived == 1 & Pclass == 1))
+
+# using which() function
+length(which(Survived == 1 & Pclass == 1))
+```
+
+Q2d. What was the percentage of first-class passengers who survived the sinking of the Titanic?
+========================================================
+
+```{r}
+surviversByClass <- xtabs(~ Survived + Pclass, data=titanic)
+
+# proportion of first-class passengers who survived the sinking of the Titanic  
+prop.table(surviversByClass, 2)
+
+# percentage of first-class passengers who survived the sinking of the Titanic  
+100*prop.table(surviversByClass, 2)[2,1]
+```
+
+
+QUESTION 3
+========================================================
+
+Q3a. Create a three-way contingency table showing the number of passengers based on the passenger's class, gender and survival.  (Hint: The R functions <span style="color:blue">`xtabs()`</span>, <span style="color:blue">`addmargins()`</span> and <span style="color:blue">`ftable()`</span> may be helpful)
+
+Q3b. Express Q3a. in percentages, displaying answers up to two decimal places. (Hint: The R functions <span style="color:blue">`round()`</span>, <span style="color:blue">`prop.table()` and <span style="color:blue">`ftable()`</span> may be helpful)
+
+**Challenge Question C1: **
+Visualize your table in Q3b, using a bar plot.
+
+Q3c. How many Females traveling by First-Class survived the sinking of the Titanic?
+
+Q3d. What was the percentage of survivors who were female?
+(Hint: Q3c. and Q3d. are not identical)
+
+**Challenge Question C2: **
+Visualize your answer in Q3d using a Pie-chart.
+
+Q3e. What was the percentage of females on board the Titanic who survived?
+
+**Challenge Question C3:**
+Visualize your answer in Q3e using a Pie-chart.
+
+
+Q3a. Create a three-way contingency table showing the number of passengers based on the passengers Survived, Sex and Passenger Class.
+========================================================
+
+```{r, eval=FALSE}
+# three way contingency table
+# Survived, Sex and Passenger Class
+mytable1 <- xtabs(~ Survived + Sex + Pclass, data=titanic)
+addmargins(mytable1)
+```
+
+Q3a. Create a three-way contingency table showing the number of passengers based on the passengers Survived, Sex and Passenger Class.
+========================================================
+
+```{r, echo=FALSE}
+# three way contingency table
+# Survived, Sex and Passenger Class
+mytable1 <- xtabs(~ Survived + Sex + Pclass, data=titanic)
+addmargins(mytable1)
+```
+
+Q3a. Create a three-way contingency table showing the number of passengers based on the Survived, Sex and Passenger Class.
+========================================================
+
+```{r}
+# frquency counts
+ftable(mytable1)
+```
+
+Q3a. Express the previous question in percentages.
+========================================================
+
+```{r}
+# frequency counts of the passengers
+ftab <- ftable(prop.table(mytable1))
+
+# converting to percentages
+ftabPer <- ftab*100
+
+# rounding values to 2 decimal places.
+round(ftabPer, 2)
+```
+
+
+Q3a. Create a three-way contingency table showing the number of passengers based on the Survival, Passenger Class and Sex.
+========================================================
+
+```{r, eval=FALSE}
+# three way contingency table
+# Survived, Passenger Classs and Sex
+mytable2 <- xtabs(~ Survived + Pclass + Sex, data=titanic)
+addmargins(mytable2)
+```
+
+Q3a. Create a three-way contingency table showing the number of passengers based on the Survival, Passenger Class and Sex.
+========================================================
+
+```{r, echo=FALSE}
+# three way contingency table
+# Survived, Passenger Classs and Sex
+mytable2 <- xtabs(~ Survived + Pclass + Sex, data=titanic)
+addmargins(mytable2)
+```
+
+Q3a. Create a three-way contingency table showing the number of passengers based on the Survival, Passenger Class and Sex.
+========================================================
+
+```{r}
+# frquency counts
+ftable(mytable2)
+```
+
+Q3b. Express the previous question in percentages.
+========================================================
+
+```{r}
+# frequency counts of the passengers
+ftab <- ftable(prop.table(mytable2))
+
+# converting to percentages
+ftabPer <- ftab*100
+
+# rounding values to 2 decimal places.
+round(ftabPer, 2)
+```
+
+
+Challenge Question C1: Visualize your table using Barplot.
+========================================================
+
+```{r, eval=FALSE, out.height="650px",out.width="700px", fig.align='center'}
+# percent of total of the passengers who survived
+par(mfrow=c(1,2),mar=c(4,4,3,3))
+tab2 <- xtabs(~ Survived + Pclass + Sex, data=titanic)
+barplot(tab2[,,1],
+	main=dimnames(tab2)$Sex[1],
+	beside=TRUE,
+	ylim=c(0,400),
+	col=c("grey","black"),
+	ylab="Number of Passengers",
+	legend=c("Died", "Survived"),
+	args.legend=list(x="topleft"))
+
+barplot(tab2[,,2],
+	main=dimnames(tab2)$Sex[2],
+	beside=TRUE,
+	ylim=c(0,400),
+	col=c("grey","black"),
+	#ylab="Number of Passengers",
+	legend=c("Died", "Survived"),
+	args.legend=list(x="topleft"))
+```
+
+Challenge Question C1: Visualize your table using Barplot.
+========================================================
+
+```{r, echo=FALSE, out.height="650px",out.width="800px", fig.align='center'}
+# percent of total of the passengers who survived
+par(mfrow=c(1,2),mar=c(4,4,3,3))
+tab2 <- xtabs(~ Survived + Pclass + Sex, data=titanic)
+barplot(tab2[,,1],
+	main=dimnames(tab2)$Sex[1],
+	beside=TRUE,
+	ylim=c(0,400),
+	col=c("grey","black"),
+	ylab="Number of Passengers",
+	legend=c("Died", "Survived"),
+	args.legend=list(x="topleft"), las=0)
+  
+barplot(tab2[,,2],
+	main=dimnames(tab2)$Sex[2],
+	beside=TRUE,
+	ylim=c(0,400),
+	col=c("grey","black"),
+	#ylab="Number of Passengers",
+	legend=c("Died", "Survived"),
+	args.legend=list(x="topleft"), las=0)
+```
+
+Challenge Question C1: Visualize your table using Barplot.
+========================================================
+
+```{r, eval=FALSE}
+# percent of total of the passengers who survived
+par(mfrow=c(1,3),mar=c(8,4,3,3))
+tab2 <- xtabs(~ Survived + Sex + Pclass, data=titanic)
+barplot(tab2[,,1],
+	main=dimnames(tab2)$Pclass[1],
+	beside=TRUE,
+	ylim=c(0,350),
+	col=c("grey","black"),
+	ylab="Number of Passengers",
+	legend=c("Died", "Survived"),
+	args.legend=list(x="topleft"))
+
+barplot(tab2[,,2],
+	main=dimnames(tab2)$Pclass[2],
+	beside=TRUE,
+	ylim=c(0,350),
+	col=c("grey","black"),
+	#ylab="Number of Passengers",
+	legend=c("Died", "Survived"),
+	args.legend=list(x="topleft"))
+
+barplot(tab2[,,3],
+	main=dimnames(tab2)$Pclass[3],
+	beside=TRUE,
+	ylim=c(0,350),
+	col=c("grey","black"),
+	#ylab="Number of Passengers",
+	legend=c("Died", "Survived"),
+	args.legend=list(x="topleft"))
+```
+
+Challenge Question C1: Visualize your table using Barplot.
+========================================================
+
+```{r, echo=FALSE, out.height="800px",out.width="1000px", fig.align='center'}
+# percent of total of the passengers who survived
+par(mfrow=c(1,3),mar=c(8,4,3,3))
+tab2 <- xtabs(~ Survived + Sex + Pclass, data=titanic)
+barplot(tab2[,,1],
+	main=dimnames(tab2)$Pclass[1],
+	beside=TRUE,
+	ylim=c(0,350),
+	col=c("grey","black"),
+	ylab="Number of Passengers",
+	legend=c("Died", "Survived"),
+	args.legend=list(x="topleft"))
+
+barplot(tab2[,,2],
+	main=dimnames(tab2)$Pclass[2],
+	beside=TRUE,
+	ylim=c(0,350),
+	col=c("grey","black"),
+	#ylab="Number of Passengers",
+	legend=c("Died", "Survived"),
+	args.legend=list(x="topleft"))
+
+barplot(tab2[,,3],
+	main=dimnames(tab2)$Pclass[3],
+	beside=TRUE,
+	ylim=c(0,350),
+	col=c("grey","black"),
+	#ylab="Number of Passengers",
+	legend=c("Died", "Survived"),
+	args.legend=list(x="topleft"))
+```
+
+
+Q3c. How many Females traveling by First-Class survived the sinking of the Titanic?
+========================================================
+
+```{r}
+# females traveling by first-class survived the sinking of the Titanic
+ftable(mytable1)[3]
+```
+
+Q3d. What was the percentage of survivors who were female?
+========================================================
+
+```{r}
+surviversBySex <- xtabs(~ Survived + Sex, data=titanic)
+# frequency counts of survivors who were female
+surviversBySex
+
+# proportions
+propSur <- prop.table(surviversBySex,1)
+
+# percentage
+propSurPer <- propSur*100
+
+# percentage of survivors who were female
+propSurPer[2,1]
+```
+
+Challenge Question C2: Visualize your answer in Q3d using a Pie-chart.
+========================================================
+
+```{r, eval=FALSE}
+slices <- c(67.94118, 32.05882)
+lbls <- c("Female survivers", "Female who died")
+
+# percentage of female who survived and who died
+pct <- round(slices/sum(slices)*100)                      
+lbls <- paste(lbls, pct) 
+lbls <- paste(lbls,"%",sep="")
+pie(slices,labels = lbls, col = c("grey", "black"),
+    main="Pie Chart with Percentages")
+```
+
+Challenge Question C2: Visualize your answer in Q3d using a Pie-chart.
+========================================================
+
+```{r, echo=FALSE, out.height="650px",out.width="700px", fig.align='center'}
+slices <- c(67.94118, 32.05882)
+lbls <- c("Female survivers", "Female who died")
+
+# percentage of female who survived and who died
+pct <- round(slices/sum(slices)*100)                      
+lbls <- paste(lbls, pct) 
+lbls <- paste(lbls,"%",sep="")
+pie(slices,labels = lbls, col = c("grey", "black"),
+    main="Pie Chart with Percentages")
+```
+
+Q3e. What was the percentage of females on board the Titanic who survived?
+========================================================
+
+```{r}
+# proportion
+propSur2 <- prop.table(surviversBySex,2)
+
+# percentage
+propSur2Per <- propSur2*100
+
+# percentage of total females on the Titanic who survived
+propSur2Per
+```
+
+Challenge Question C3: Visualize your answer in Q3f using a Pie-chart.
+========================================================
+
+```{r, eval=FALSE}
+slices <- c(74.03846, 25.96154)
+lbls <- c("Total female survivers", "Total female who died")
+
+# percentage of total female who survived and who died
+pct <- round(slices/sum(slices)*100)                      
+lbls <- paste(lbls, pct) 
+lbls <- paste(lbls,"%",sep="")
+pie(slices,labels = lbls, col = c("grey", "black"),
+    main="Pie Chart with Percentages")
+```
+
+Challenge Question C3: Visualize your answer in Q3f using a Pie-chart.
+========================================================
+
+```{r, echo=FALSE, out.height="650px",out.width="700px", fig.align='center'}
+slices <- c(74.03846, 25.96154)
+lbls <- c("Total female survivers", "Total female who died")
+
+# percentage of total female who survived and who died
+pct <- round(slices/sum(slices)*100)                      
+lbls <- paste(lbls, pct) 
+lbls <- paste(lbls,"%",sep="")
+pie(slices,labels = lbls, col = c("grey", "black"),
+    main="Pie Chart with Percentages")
+```
+
+
+QUESTION 4
+========================================================
+
+Q4a. Use a Pearson's Chi-squared test to evaluate whether the proportion of females who survived was larger than the proportion of males who survived?
+
+Q4b. What is the p-value of the previous Pearson's Chi-squared test?
+
+**Challenge Question C4: **
+Learn about Mosaic Plot by browsing this link. 
+Create a Mosaic Plot of Titanic survivors and nonsurvivors based on gender (male/female), passenger class (First/Second/Third).
+
+
+Q4a. Use a Pearson's Chi-squared test to evaluate whether the proportion of females who survived was larger than the proportion of males who survived?
+========================================================
+
+```{r}
+chisq.test(surviversBySex)
+```
+
+Percentage of female survivers was higher than percentage of male survivers.
+
+Q4b. What is the p-value of the previous Pearson's Chi-squared test?
+========================================================
+
+```{r}
+# p-value
+(chisq.test(surviversBySex))$p.value
+```
+The p-value of the previous Pearson's Chi-squared test is $3.77991e-58$.
+
+Challenge Question C4: Create a Mosaic Plot of Titanic survivors and nonsurvivors based on gender (male/female), passenger class (First/Second/Third).
+========================================================
+
+Create a Mosaic Plot of Titanic survivors and nonsurvivors based on gender (male/female), passenger class (First/Second/Third).
+
+```{r, eval=FALSE}
+library(vcd)
+# Passenger Class, Sex and Survived
+mosaic(~ Pclass + Sex + Survived, data=titanic, shade=TRUE, legend=TRUE)
+```
+
+Challenge Question C4: Create a Mosaic Plot of Titanic survivors and nonsurvivors based on gender (male/female), passenger class (First/Second/Third).
+========================================================
+
+```{r, echo=FALSE, out.height="800px",out.width="800px", fig.align='center'}
+library(vcd)
+# Passenger Class, Sex and Survived
+mosaic(~ Pclass + Sex + Survived, data=titanic, shade=TRUE, legend=TRUE)
+```
+
+
+Challenge Question C4: Create a Mosaic Plot of Titanic survivors and nonsurvivors based on gender (male/female), passenger class (First/Second/Third).
+========================================================
+
+Create a Mosaic Plot of Titanic survivors and nonsurvivors based on gender (male/female), passenger class (First/Second/Third).
+
+```{r, eval=FALSE}
+library(vcd)
+# Sex, Passenger Class and Survived
+mosaic(~ Sex + Pclass + Survived, data=titanic, shade=TRUE, legend=TRUE)
+```
+
+Challenge Question C4: Create a Mosaic Plot of Titanic survivors and nonsurvivors based on gender (male/female), passenger class (First/Second/Third).
+========================================================
+
+Create a Mosaic Plot of Titanic survivors and nonsurvivors based on gender (male/female), passenger class (First/Second/Third).
+
+```{r, echo=FALSE, echo=FALSE, out.height="700px",out.width="700px", fig.align='center'}
+library(vcd)
+# Sex, Passenger Class and Survived
+mosaic(~ Sex + Pclass + Survived, data=titanic, shade=TRUE, legend=TRUE)
+```
+
+
+Challenge Question C4: Create a Mosaic Plot of Titanic survivors and nonsurvivors based on gender (male/female), passenger class (First/Second/Third).
+========================================================
+
+Create a Mosaic Plot of Titanic survivors and nonsurvivors based on gender (male/female), passenger class (First/Second/Third).
+
+```{r, eval=FALSE}
+library(vcd)
+# Survived, Passenger Class and Sex
+mosaic(~ Survived + Pclass + Sex, data=titanic, shade=TRUE, legend=TRUE)
+```
+
+Challenge Question C4: Create a Mosaic Plot of Titanic survivors and nonsurvivors based on gender (male/female), passenger class (First/Second/Third).
+========================================================
+
+Create a Mosaic Plot of Titanic survivors and nonsurvivors based on gender (male/female), passenger class (First/Second/Third).
+
+```{r, echo=FALSE, echo=FALSE, out.height="700px",out.width="700px", fig.align='center'}
+library(vcd)
+# Survived, Passenger Class and Sex
+mosaic(~ Survived + Pclass + Sex, data=titanic, shade=TRUE, legend=TRUE)
+```
+
+
